@@ -32,6 +32,7 @@ build
 *.ipr
 *.iws
 .idea
+*.pyc
 
 # mac
 .DS_Store
