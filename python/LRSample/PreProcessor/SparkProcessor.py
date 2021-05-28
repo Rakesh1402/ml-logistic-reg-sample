@@ -1,5 +1,5 @@
 from pyspark import SparkConf, SparkContext
-from pyspark.sql import SparkSession
+from pyspark.sql.functions import *
 from pyspark.ml.classification import LogisticRegression
 from pyspark.ml.feature import OneHotEncoderEstimator, StringIndexer, VectorAssembler
 from pyspark.ml import Pipeline
@@ -82,5 +82,15 @@ class SparkProcessor:
     def predict(model, test_df):
         pred_df = model.transform(test_df)
         pred_df.select("label", "prediction").show(10, False)
+        # .select(pred_df.label.cast("int"), pred_df.prediction.cast("int"))\
+        # calculate score of the prediction
+        print("Accuracy: {}".format(model.summary.accuracy))
+        error_df = pred_df.withColumn("error", pred_df.label.isNotNull() & (pred_df.label != pred_df.prediction))
+        error_count = error_df.filter(error_df.error == True).count()
+        total_count = test_df.count()
+        error_per = error_count * 100.0 / total_count
+        print("Total samples: {}, error records: {}, Error percentage: {}, Success rate: {}"
+              .format(total_count, error_count, error_per, 100 - error_per))
+        error_df.show(10, False)
         return pred_df
 
