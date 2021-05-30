@@ -20,9 +20,11 @@ class SparkProcessor:
         return train_df, test_df, pred_df
 
     @staticmethod
-    def encode_categorical_cols(train_df, test_df):
-        categorical_variables = ['workclass', 'education', 'marital_status', 'occupation', 'relationship', 'race',
-                                 'sex', 'native_country']
+    def encode_categorical_cols(train_df, test_df, categorical_variables=None):
+        if categorical_variables is None:
+            categorical_variables = ['workclass', 'education', 'marital_status', 'occupation',
+                                     'relationship', 'race', 'sex', 'native_country']
+
         indexers = [StringIndexer(inputCol=column, outputCol=column + "-index") for column in categorical_variables]
         encoder = OneHotEncoderEstimator(
             inputCols=[indexer.getOutputCol() for indexer in indexers],
